@@ -1,0 +1,22 @@
+name: Test build
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6.0.2
+    - uses: qiime2-cutlery/setup-miniconda@v3
+      with:
+        activate-environment: q2-ntcard-dev
+        environment-file: environment-files/q2-ntcard-qiime2-moshpit-dev.yml
+        auto-activate-base: false
+    - name: Install and test
+      shell: bash -l {0}
+      run: |
+        python -m pip install -v .
+        qiime dev refresh-cache
+        qiime ntcard --help
+        py.test
