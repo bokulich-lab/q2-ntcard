@@ -6,10 +6,11 @@ import pandas.testing as pdt
 import pytest
 
 from q2_ntcard._methods import (
-    _parse_kmer_sizes, _read_histograms, _summarize,
-    estimate_kmer_histograms,
+    _parse_kmer_sizes,
+    _read_histograms,
+    _summarize,
+    _estimate,
 )
-
 
 DATA = Path(__file__).parent / "data"
 
@@ -45,13 +46,12 @@ def test_estimate_command_and_outputs(tmp_path):
         )
 
     with patch("q2_ntcard._methods.run_command", side_effect=fake_run) as run:
-        summary, histogram = estimate_kmer_histograms(
-            tmp_path, kmer_sizes="21", threads=2
-        )
+        summary, histogram = _estimate(tmp_path, kmer_sizes="21", threads=2)
     assert run.call_args.args[0][0] == "ntcard"
     assert "-t2" in run.call_args.args[0]
     pdt.assert_frame_equal(
-        summary.to_dataframe(), _summarize(histogram.to_dataframe()),
+        summary.to_dataframe(),
+        _summarize(histogram.to_dataframe()),
         check_dtype=False,
     )
 
@@ -61,4 +61,4 @@ def test_estimate_failure(tmp_path):
     error = subprocess.CalledProcessError(2, ["ntcard"], stderr="bad reads")
     with patch("q2_ntcard._methods.run_command", side_effect=error):
         with pytest.raises(RuntimeError, match="bad reads"):
-            estimate_kmer_histograms(tmp_path, kmer_sizes="21")
+            _estimate(tmp_path, kmer_sizes="21")

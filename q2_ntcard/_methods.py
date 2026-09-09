@@ -14,8 +14,9 @@ def _parse_kmer_sizes(value):
     try:
         sizes = [int(item.strip()) for item in value.split(",")]
     except ValueError as error:
-        raise ValueError("kmer_sizes must be a comma-separated list of integers.") \
-            from error
+        raise ValueError(
+            "kmer_sizes must be a comma-separated list of integers."
+        ) from error
     if not sizes or any(size < 1 for size in sizes):
         raise ValueError("All k-mer sizes must be positive integers.")
     if len(set(sizes)) != len(sizes):
@@ -70,8 +71,7 @@ def _read_histograms(paths, expected_sizes):
             + ", ".join(map(str, sorted(missing)))
         )
     histogram.index = [
-        f"k{row.kmer_length}-f{row.frequency}"
-        for row in histogram.itertuples()
+        f"k{row.kmer_length}-f{row.frequency}" for row in histogram.itertuples()
     ]
     histogram.index.name = "id"
     histogram.attrs["ntcard_summary"] = reported
@@ -86,25 +86,25 @@ def _summarize(histogram):
         counts = group["estimated_distinct_kmers"]
         frequencies = group["frequency"]
         distinct = reported.get(kmer_length, {}).get("F0", counts.sum())
-        total = reported.get(kmer_length, {}).get(
-            "F1", (frequencies * counts).sum()
-        )
+        total = reported.get(kmer_length, {}).get("F1", (frequencies * counts).sum())
         singletons = counts[frequencies == 1].sum()
         occupied = group.loc[counts > 0, "frequency"]
-        rows.append({
-            "id": f"k{kmer_length}",
-            "kmer_length": int(kmer_length),
-            "estimated_distinct_kmers": float(distinct),
-            "estimated_total_kmers": float(total),
-            "estimated_singleton_kmers": float(singletons),
-            "maximum_observed_frequency": (
-                int(occupied.max()) if not occupied.empty else 0
-            ),
-        })
+        rows.append(
+            {
+                "id": f"k{kmer_length}",
+                "kmer_length": int(kmer_length),
+                "estimated_distinct_kmers": float(distinct),
+                "estimated_total_kmers": float(total),
+                "estimated_singleton_kmers": float(singletons),
+                "maximum_observed_frequency": (
+                    int(occupied.max()) if not occupied.empty else 0
+                ),
+            }
+        )
     return pd.DataFrame(rows).set_index("id")
 
 
-def estimate_kmer_histograms(
+def _estimate(
     reads: CasavaOneEightSingleLanePerSampleDirFmt,
     kmer_sizes: str = "21,31",
     max_frequency: int = 1000,
@@ -119,8 +119,12 @@ def estimate_kmer_histograms(
     with tempfile.TemporaryDirectory(prefix="q2-ntcard-") as tmpdir:
         prefix = Path(tmpdir) / "ntcard"
         command = [
-            "ntcard", f"-k{','.join(map(str, sizes))}",
-            f"-c{max_frequency}", f"-t{threads}", "-p", str(prefix),
+            "ntcard",
+            f"-k{','.join(map(str, sizes))}",
+            f"-c{max_frequency}",
+            f"-t{threads}",
+            "-p",
+            str(prefix),
             *map(str, input_paths),
         ]
         try:

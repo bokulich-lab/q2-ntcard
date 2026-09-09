@@ -1,25 +1,29 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>__TITLE__</title>
-<style>
-body{font:14px system-ui,sans-serif;margin:2rem;color:#17202a}h1{margin-bottom:.4rem}
-.controls{display:flex;gap:1rem;margin:1rem 0}select,label{font:inherit}
-svg{width:100%;height:480px;border:1px solid #ccd6dd;background:#fff}
-.axis{stroke:#708090}.line{fill:none;stroke:#3659a2;stroke-width:2}.dot{fill:#3659a2}
-#tip{position:fixed;display:none;background:#17202a;color:#fff;padding:.4rem .6rem;
-border-radius:4px;pointer-events:none}small{color:#566573}
-</style></head><body><h1>__TITLE__</h1>
-<small>Hover over points for estimated counts. Axes are logarithmic by default.</small>
-<div class="controls"><label>k-mer length <select id="k"></select></label>
-<label><input id="log" type="checkbox" checked> logarithmic axes</label></div>
-<svg id="chart" viewBox="0 0 900 480" role="img" aria-label="k-mer histogram"></svg>
-<div id="tip"></div><script>
-const rows=__DATA__, ks=[...new Set(rows.map(d=>+d.kmer_length))].sort((a,b)=>a-b);
-const sel=document.querySelector('#k'),svg=document.querySelector('#chart'),tip=document.querySelector('#tip');
-ks.forEach(k=>sel.add(new Option(k,k))); sel.onchange=draw; document.querySelector('#log').onchange=draw;
-function draw(){const log=document.querySelector('#log').checked,d=rows.filter(x=>+x.kmer_length===+sel.value&&+x.estimated_distinct_kmers>0).sort((a,b)=>a.frequency-b.frequency);
-const W=900,H=480,p=55,tx=x=>log?Math.log10(Math.max(1,x)):x,xmax=Math.max(...d.map(x=>tx(+x.frequency)),1),ymax=Math.max(...d.map(x=>tx(+x.estimated_distinct_kmers)),1),X=x=>p+(W-2*p)*tx(x)/xmax,Y=y=>H-p-(H-2*p)*tx(y)/ymax;
-svg.innerHTML=`<line class="axis" x1="${p}" y1="${H-p}" x2="${W-p}" y2="${H-p}"/><line class="axis" x1="${p}" y1="${p}" x2="${p}" y2="${H-p}"/><text x="${W/2}" y="${H-10}" text-anchor="middle">k-mer frequency</text><text x="15" y="${H/2}" transform="rotate(-90 15 ${H/2})" text-anchor="middle">estimated distinct k-mers</text><polyline class="line" points="${d.map(x=>`${X(+x.frequency)},${Y(+x.estimated_distinct_kmers)}`).join(' ')}"/>`;
-d.forEach(x=>{let c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('class','dot');c.setAttribute('cx',X(+x.frequency));c.setAttribute('cy',Y(+x.estimated_distinct_kmers));c.setAttribute('r',3);c.onmousemove=e=>{tip.style.display='block';tip.style.left=e.clientX+12+'px';tip.style.top=e.clientY+12+'px';tip.textContent=`frequency ${x.frequency}: ${Number(x.estimated_distinct_kmers).toLocaleString()} k-mers`};c.onmouseleave=()=>tip.style.display='none';svg.appendChild(c)})} draw();
-</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>__TITLE__</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@6.2.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@6.4.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@7.1.0"></script>
+  <style>
+    body { font: 14px system-ui, sans-serif; margin: 2rem; color: #17202a; }
+    #vis { overflow-x: auto; }
+    .note { color: #566573; margin-bottom: 1rem; }
+    .error { color: #9c1c1c; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <p class="note">All panels use logarithmic axes. Hover over a point for details.</p>
+  <div id="vis" role="img" aria-label="Faceted ntCard k-mer histograms"></div>
+  <script>
+    const spec = __SPEC__;
+    vegaEmbed('#vis', spec, {actions: {source: true, compiled: false, editor: true}})
+      .catch(error => {
+        document.querySelector('#vis').innerHTML =
+          `<p class="error">Unable to render Vega-Lite chart: ${error}</p>`;
+      });
+  </script>
+</body>
+</html>

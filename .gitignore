@@ -4,7 +4,13 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+test-results*/
 build/
 dist/
 .DS_Store
 _version.py
+coverage.xml
+*.qza
+*.qzv
+.idea/
+.vscode/

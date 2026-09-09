@@ -1,7 +1,7 @@
 [project]
 name = "q2-ntcard"
 authors = [
-    { name = "q2-ntcard contributors" }
+    { name = "Michal Ziemski", email = "ziemski.michal@gmail.com" }
 ]
 description = "Estimate and explore k-mer coverage histograms with ntCard."
 readme = {file = "README.md", content-type = "text/markdown"}
@@ -10,6 +10,7 @@ dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://github.com/qiime2/q2-ntcard"
+Repository = "https://github.com/qiime2/q2-ntcard"
 
 [project.entry-points.'qiime2.plugins']
 "q2-ntcard" = "q2_ntcard.plugin_setup:plugin"

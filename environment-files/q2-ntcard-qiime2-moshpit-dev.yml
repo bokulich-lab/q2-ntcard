@@ -1,8 +1,0 @@
-channels:
-- https://packages.qiime2.org/qiime2/latest/moshpit/passed
-- conda-forge
-- bioconda
-dependencies:
-- qiime2-moshpit
-- ntcard >=1.2.2
-- pip

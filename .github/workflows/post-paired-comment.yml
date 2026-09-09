@@ -1,0 +1,14 @@
+# this is an accessory to lib-ci-dev's Paired- PR functionality
+name: post paired reverse deps comment
+on:
+  workflow_run:
+    workflows: ["QIIME 2 CI"]
+    types: [completed]
+
+jobs:
+  post:
+    if: github.event.workflow_run.event == 'pull_request'
+    uses: qiime2/distributions/.github/workflows/lib-post-paired-comment.yaml@dev
+    with:
+      run-id: ${{ github.event.workflow_run.id }}
+    secrets: inherit
